@@ -12,6 +12,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     println!("starting scan");
     let mut scan = adapter.scan(&[]).await?;
+
     println!("scan started");
     while let Some(discovered_device) = scan.next().await {
         handle_device(discovered_device)
@@ -29,10 +30,7 @@ fn handle_device(discovered_device: AdvertisingDevice) {
             .name()
             .unwrap_or(String::from("(unknown)"));
         let rssi = discovered_device.rssi.unwrap_or_default();
-
-        println!(
-            "{name} ({rssi}dBm) Heart Rate: {:?}",
-            manufacturer_data.data[3]
-        );
+        let heart_rate = manufacturer_data.data[3];
+        println!("{name} ({rssi}dBm) Heart Rate: {heart_rate:?}",);
     }
 }
