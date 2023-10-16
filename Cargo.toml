@@ -1,0 +1,11 @@
+[package]
+name = "miband-heart-rate"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tokio = { version = "1.33.0", features = ["macros", "rt-multi-thread"] }
+bluest = "0.6.4"
+futures-lite = "1.13.0"
