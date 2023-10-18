@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<!-- thanks: https://github.com/StudyLeaks/heartbeat/ -->
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Heart Beat StudyLeaks</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Young+Serif&display=swap');
+
+        :root {
+            --heart-speed: 1s
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+        }
+
+        .heart {
+            height: 30px;
+            width: 30px;
+            background: #f20044;
+            position: relative;
+            transform: rotate(-45deg) translate(-4px, 4px);
+            box-shadow: -10px 10px 90px #f20044;
+            animation: heart var(--heart-speed) linear infinite;
+            margin: 20px;
+        }
+
+        #heart-rate-number {
+            font-size: 50px;
+            font-family: 'Young Serif', serif;
+            vertical-align: text-top;
+
+            color: #ffffff;
+            text-shadow:
+                #f20044 0px 0px 20px,
+                #f20044 0px 0px 40px,
+                #fff 0px 0px 50px,
+                #fff 0px 0px 60px;
+        }
+
+        @keyframes heart {
+            0% {
+                transform: rotate(-45deg) scale(1.07) translate(-4px, 4px);
+            }
+
+            80% {
+                transform: rotate(-45deg) scale(1) translate(-4px, 4px);
+            }
+
+            100% {
+                transform: rotate(-45deg) scale(0.9) translate(-4px, 4px);
+            }
+        }
+
+        .heart::before {
+            content: "";
+            position: absolute;
+            height: 30px;
+            width: 30px;
+            background: #f20044;
+            top: -50%;
+            border-radius: 40px;
+            box-shadow: -5px -5px 50px #f20044;
+        }
+
+        .heart::after {
+            content: "";
+            position: absolute;
+            height: 30px;
+            width: 30px;
+            background: #f20044;
+            right: -50%;
+            border-radius: 40px;
+            box-shadow: 5px 5px 50px #f20044;
+        }
+    </style>
+    <script>
+        function setHeartRate(heartRate) {
+            document.documentElement.style.setProperty('--heart-speed', (60 / heartRate) + 's')
+            document.getElementById('heart-rate-number').innerText = heartRate
+        }
+
+        async function updateHeartRate() {
+            while (true) {
+                try {
+                    let response = await fetch('/heartrate')
+                    let heartRate = Number(await response.text())
+                    setHeartRate(heartRate)
+                    console.log("Heart Rate: ", heartRate)
+                } catch (err) {
+                    console.error(err)
+                }
+            }
+        }
+
+        if (document.location.protocol != 'file:') {
+            updateHeartRate()
+        } else {
+            window.addEventListener('load', () => setHeartRate(60))
+        }
+    </script>
+</head>
+
+<body>
+    <div id="heart" class="heart"></div>
+    <div id="heart-rate-number"></div>
+</body>
+
+</html>
