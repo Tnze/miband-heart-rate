@@ -10,10 +10,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .ok_or("Bluetooth adapter not found")?;
     adapter.wait_available().await?;
 
-    println!("starting scan");
+    println!("Starting scan");
     let mut scan = adapter.scan(&[]).await?;
 
-    println!("scan started");
+    println!("Scan started");
     while let Some(discovered_device) = scan.next().await {
         handle_device(discovered_device)
     }
