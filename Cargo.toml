@@ -1,7 +1,9 @@
 [package]
 name = "miband-heart-rate"
+authors = ["Tnze"]
 version = "0.1.0"
 edition = "2021"
+repository = "https://github.com/Tnze/miband-heart-rate"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
