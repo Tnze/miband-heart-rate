@@ -56,12 +56,13 @@ fn handle_device(discovered_device: AdvertisingDevice) -> Option<i32> {
         .device
         .name()
         .unwrap_or(String::from("(unknown)"));
+    let id = discovered_device.device.id();
     let rssi = discovered_device.rssi.unwrap_or_default();
     let heart_rate = manufacturer_data.data[3];
     let heart_rate = match heart_rate {
         0xFF => None,
         x => Some(x.into()),
     };
-    println!("{name} ({rssi}dBm) Heart Rate: {heart_rate:?}",);
+    println!("{name} {id} ({rssi}dBm) Heart Rate: {heart_rate:?}",);
     heart_rate
 }
