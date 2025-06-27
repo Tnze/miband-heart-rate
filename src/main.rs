@@ -18,7 +18,8 @@ async fn main() {
         value: 0,
         sensor_contact: None,
     });
-    let _ = tokio::join!(ble_scanner(tx), web_server(rx));
+    let result = tokio::join!(ble_scanner(tx), web_server(rx));
+    println!("{result:?}");
 }
 
 #[derive(Serialize)]
@@ -27,7 +28,7 @@ struct HeartRate {
     sensor_contact: Option<bool>,
 }
 
-async fn web_server(rx: Receiver<HeartRate>) {
+async fn web_server(rx: Receiver<HeartRate>) -> Result<!, Box<dyn Error>> {
     let root = warp::path::end().map(|| warp::reply::html(include_str!("../web/index.html")));
     let heartrate = warp::path!("heartrate").then(move || {
         let mut rx = rx.clone();
@@ -43,7 +44,8 @@ async fn web_server(rx: Receiver<HeartRate>) {
 
     warp::serve(warp::get().and(root).or(heartrate))
         .run(socket_addr)
-        .await
+        .await;
+    Err("Server stopped".into())
 }
 
 async fn ble_scanner(tx: Sender<HeartRate>) -> Result<!, Box<dyn Error>> {
