@@ -1,5 +1,3 @@
-#![feature(never_type)]
-
 use std::error::Error;
 use std::net::SocketAddr;
 
@@ -28,7 +26,7 @@ struct HeartRate {
     sensor_contact: Option<bool>,
 }
 
-async fn web_server(rx: Receiver<HeartRate>) -> Result<!, Box<dyn Error>> {
+async fn web_server(rx: Receiver<HeartRate>) -> Result<(), Box<dyn Error>> {
     let root = warp::path::end().map(|| warp::reply::html(include_str!("../web/index.html")));
     let heartrate = warp::path!("heartrate").then(move || {
         let mut rx = rx.clone();
@@ -48,7 +46,7 @@ async fn web_server(rx: Receiver<HeartRate>) -> Result<!, Box<dyn Error>> {
     Err("Server stopped".into())
 }
 
-async fn ble_scanner(tx: Sender<HeartRate>) -> Result<!, Box<dyn Error>> {
+async fn ble_scanner(tx: Sender<HeartRate>) -> Result<(), Box<dyn Error>> {
     let adapter = Adapter::default()
         .await
         .ok_or("Bluetooth adapter not found")
@@ -73,8 +71,9 @@ async fn ble_scanner(tx: Sender<HeartRate>) -> Result<!, Box<dyn Error>> {
             }
         };
 
-        let Err(err) = handle_device(&adapter, &device, &tx).await;
-        println!("Connection error: {err:?}");
+        if let Err(err) = handle_device(&adapter, &device, &tx).await {
+            println!("Connection error: {err:?}");
+        }
     }
 }
 
@@ -82,7 +81,7 @@ async fn handle_device(
     adapter: &Adapter,
     device: &Device,
     tx: &Sender<HeartRate>,
-) -> Result<!, Box<dyn Error>> {
+) -> Result<(), Box<dyn Error>> {
     // Connect
     if !device.is_connected().await {
         println!("Connecting device: {}", device.id());
