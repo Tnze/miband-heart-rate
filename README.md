@@ -1,10 +1,12 @@
-# MiBand Heart Rate Demo
+# MiBand Heart Rate for OBS
 
-A Demo of reading "Activity heart rate sharing" of Xiaomi Smart Band 6. Enable the option in official App is required.
+> This edition listening at <http://127.0.0.1:3030> so you can use it on OBS browser source.
+>
+> 该版本在 <http://127.0.0.1:3030> 监听HTTP请求，你可以在 OBS 中将其添加为浏览器源。以在直播时显示心率。
 
-接收小米手环6 “运动心率广播” Demo，测试前需要在小米运动健康App中开启手环的该选项。
+A Demo of reading "Shear heart rate data" of Xiaomi Smart Band 10. Enable the option in official App is required.
 
-欢迎二次开发。
+接收小米手环10 “运动心率广播” Demo，需在手环设置-心率广播中开启广播功能。
 
 ## Supported Platform
 
@@ -14,17 +16,15 @@ I use `bluest` crate. I copy its words below.
 
 So it supported:
 
-- Windows 10
+- Windows 10/11
 - MacOS/iOS
 - Linux
 
 ## Supported MiBands
 
-MiBand6 小米手环6
+MiBand 10 小米手环 10
 
-> MiBand 4 and 5 would also work. 小米手环4和5应该也可以，但我没有测试
-
-Tested on MiBand6/NFC.
+Tested on MiBand10/NFC.
 
 ## Screenshot
 

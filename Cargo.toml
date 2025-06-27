@@ -8,7 +8,8 @@ repository = "https://github.com/Tnze/miband-heart-rate"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-tokio = { version = "1.35.1", features = ["macros", "rt-multi-thread"] }
-bluest = "0.6.4"
-futures-lite = "2.3.0"
 warp = "0.3.7"
+tokio = { version = "1.45.1", features = ["macros", "rt-multi-thread"] }
+bluest = "0.6.8"
+futures-lite = "2.6.0"
+serde = { version = "1.0.219", features = ["derive"] }
