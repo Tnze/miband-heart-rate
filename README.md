@@ -1,8 +1,12 @@
 # MiBand Heart Rate Demo
 
-A Demo of reading "Shear heart rate data" of Xiaomi Smart Band 6. Enable the option in official App is required.
+> For miband 4~7, checkout `miband-4-to-7` tag
+>
+> 对于小米手环 4~7，请切换到 `miband-4-to-7` 标签
 
-接收小米手环6 “运动心率广播” Demo，测试前需要在小米运动健康App中开启手环的该选项。
+A Demo of reading "Shear heart rate data" of Xiaomi Smart Band 10. Enable the option in official App is required.
+
+接收小米手环10 “运动心率广播” Demo，需在手环设置-心率广播中开启广播功能。
 
 欢迎二次开发。
 
@@ -14,15 +18,15 @@ I use `bluest` crate. I copy its words below.
 
 So it supported:
 
-- Windows 10
+- Windows 10/11
 - MacOS/iOS
 - Linux
 
 ## Supported MiBands
 
-MiBand4, 5, 6, 7 小米手环4、5、6、7
+MiBand 10 小米手环 10
 
-Tested on MiBand6/NFC.
+Tested on MiBand10/NFC.
 
 ## Screenshot
 
