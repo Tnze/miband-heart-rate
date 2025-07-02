@@ -92,7 +92,7 @@
             while (true) {
                 try {
                     let response = await fetch('/heartrate')
-                    let heartRate = Number(await response.text())
+                    let heartRate = Number(await response.json())
                     setHeartRate(heartRate)
                     console.log("Heart Rate: ", heartRate)
                 } catch (err) {
