@@ -6,6 +6,13 @@ use futures_lite::stream::StreamExt;
 use serde::Serialize;
 use tokio::sync::watch::{self, Receiver, Sender};
 use warp::Filter;
+use winit::{
+    application::ApplicationHandler,
+    event::WindowEvent,
+    event_loop::{ActiveEventLoop, EventLoop},
+    window::{Window, WindowId, WindowLevel},
+};
+use wry::WebViewBuilder;
 
 const HRS_UUID: Uuid = bluetooth_uuid_from_u16(0x180D);
 const HRM_UUID: Uuid = bluetooth_uuid_from_u16(0x2A37);
@@ -16,8 +23,17 @@ async fn main() {
         value: 0,
         sensor_contact: None,
     });
-    let result = tokio::join!(ble_scanner(tx), web_server(rx));
-    println!("{result:?}");
+
+    tokio::spawn(async {
+        ble_scanner(tx).await.unwrap();
+    });
+    tokio::spawn(async {
+        web_server(rx).await.unwrap();
+    });
+
+    let event_loop = EventLoop::new().unwrap();
+    let mut app = App::default();
+    event_loop.run_app(&mut app).unwrap();
 }
 
 #[derive(Serialize)]
@@ -124,4 +140,46 @@ async fn handle_device(
         })?;
     }
     Err("No longer heart rate notify".into())
+}
+
+#[derive(Default)]
+struct App {
+    window: Option<Window>,
+    webview: Option<wry::WebView>,
+}
+
+impl ApplicationHandler for App {
+    fn resumed(&mut self, event_loop: &ActiveEventLoop) {
+        let window = event_loop
+            .create_window(
+                Window::default_attributes()
+                    .with_transparent(true)
+                    .with_decorations(false)
+                    .with_window_level(WindowLevel::AlwaysOnTop),
+            )
+            .unwrap();
+        let webview = WebViewBuilder::new()
+            .with_url("http://127.0.0.1:3030/")
+            .with_transparent(true)
+            .build(&window)
+            .unwrap();
+
+        self.window = Some(window);
+        self.webview = Some(webview);
+    }
+
+    fn window_event(
+        &mut self,
+        event_loop: &ActiveEventLoop,
+        _window_id: WindowId,
+        event: WindowEvent,
+    ) {
+        println!("{event:?}");
+        match event {
+            WindowEvent::CloseRequested => {
+                event_loop.exit();
+            }
+            _ => {}
+        }
+    }
 }
