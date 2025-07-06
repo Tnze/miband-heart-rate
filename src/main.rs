@@ -44,22 +44,35 @@ async fn handle_device(adapter: &Adapter, device: &Device) -> Result<!, Box<dyn 
         println!("Connecting device: {}", device.id());
         adapter.connect_device(&device).await?;
     }
+    println!("Connected");
+
+    // Pair
+    if !device.is_paired().await? {
+        println!("Pairing");
+        match device.pair().await {
+            Ok(_) => println!("Pairing success"),
+            Err(err) => println!("Failed to pair: {err:?}"),
+        }
+    }
 
     // Discover services
     let heart_rate_services = device.discover_services_with_uuid(HRS_UUID).await?;
+    println!("Discovered service");
     let heart_rate_service = heart_rate_services
         .first()
         .ok_or("Device should has one heart rate service at least")?;
 
-    // Discover
+    // Discover characteristics
     let heart_rate_measurements = heart_rate_service
         .discover_characteristics_with_uuid(HRM_UUID)
         .await?;
+    println!("Discovered characteristic");
     let heart_rate_measurement = heart_rate_measurements
         .first()
         .ok_or("HeartRateService should has one heart rate measurement characteristic at least")?;
 
     let mut updates = heart_rate_measurement.notify().await?;
+    println!("Enabled notification");
     while let Some(Ok(heart_rate)) = updates.next().await {
         let flag = *heart_rate.get(0).ok_or("No flag")?;
 
