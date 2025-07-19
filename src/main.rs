@@ -2,7 +2,12 @@
 
 use std::error::Error;
 
-use bluest::{btuuid::bluetooth_uuid_from_u16, Adapter, Device, Uuid};
+use async_trait::async_trait;
+use bluest::{
+    btuuid::bluetooth_uuid_from_u16,
+    pairing::{IoCapability, PairingAgent, PairingRejected, Passkey},
+    Adapter, Device, Uuid,
+};
 use futures_lite::stream::StreamExt;
 
 const HRS_UUID: Uuid = bluetooth_uuid_from_u16(0x180D);
@@ -49,7 +54,7 @@ async fn handle_device(adapter: &Adapter, device: &Device) -> Result<!, Box<dyn 
     // Pair
     if !device.is_paired().await? {
         println!("Pairing");
-        match device.pair().await {
+        match device.pair_with_agent(&StdioPairingAgent).await {
             Ok(_) => println!("Pairing success"),
             Err(err) => println!("Failed to pair: {err:?}"),
         }
@@ -90,4 +95,79 @@ async fn handle_device(adapter: &Adapter, device: &Device) -> Result<!, Box<dyn 
         println!("HeartRateValue: {heart_rate_value}, SensorContactDetected: {sensor_contact:?}");
     }
     Err("No longer heart rate notify".into())
+}
+
+struct StdioPairingAgent;
+
+#[async_trait]
+impl PairingAgent for StdioPairingAgent {
+    /// The input/output capabilities of this agent
+    fn io_capability(&self) -> IoCapability {
+        IoCapability::KeyboardDisplay
+    }
+
+    async fn confirm(&self, device: &Device) -> Result<(), PairingRejected> {
+        tokio::task::block_in_place(move || {
+            println!(
+                "Do you want to pair with {:?}? (Y/n)",
+                device.name().unwrap()
+            );
+            let mut buf = String::new();
+            std::io::stdin()
+                .read_line(&mut buf)
+                .map_err(|_| PairingRejected::default())?;
+            let response = buf.trim();
+            if response.is_empty() || response == "y" || response == "Y" {
+                Ok(())
+            } else {
+                Err(PairingRejected::default())
+            }
+        })
+    }
+
+    async fn confirm_passkey(
+        &self,
+        device: &Device,
+        passkey: Passkey,
+    ) -> Result<(), PairingRejected> {
+        tokio::task::block_in_place(move || {
+            println!(
+                "Is the passkey \"{}\" displayed on {:?}? (Y/n)",
+                passkey,
+                device.name().unwrap()
+            );
+            let mut buf = String::new();
+            std::io::stdin()
+                .read_line(&mut buf)
+                .map_err(|_| PairingRejected::default())?;
+            let response = buf.trim();
+            if response.is_empty() || response == "y" || response == "Y" {
+                Ok(())
+            } else {
+                Err(PairingRejected::default())
+            }
+        })
+    }
+
+    async fn request_passkey(&self, device: &Device) -> Result<Passkey, PairingRejected> {
+        tokio::task::block_in_place(move || {
+            println!(
+                "Please enter the 6-digit passkey for {:?}: ",
+                device.name().unwrap()
+            );
+            let mut buf = String::new();
+            std::io::stdin()
+                .read_line(&mut buf)
+                .map_err(|_| PairingRejected::default())?;
+            buf.trim().parse().map_err(|_| PairingRejected::default())
+        })
+    }
+
+    fn display_passkey(&self, device: &Device, passkey: Passkey) {
+        println!(
+            "The passkey is \"{}\" for {:?}.",
+            passkey,
+            device.name().unwrap()
+        );
+    }
 }

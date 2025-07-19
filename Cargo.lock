@@ -503,6 +503,7 @@ checksum = "32a282da65faaf38286cf3be983213fcf1d2e2a58700e808f83f4ea9a4804bc0"
 name = "miband-heart-rate"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "bluest",
  "futures-lite 2.6.0",
  "tokio",
